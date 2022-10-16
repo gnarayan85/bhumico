@@ -1,0 +1,216 @@
+<html>
+  <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css" integrity="sha512-ELV+xyi8IhEApPS/pSj66+Jiw+sOT1Mqkzlh8ExXihe4zfqbWkxPRi8wptXIO9g73FSlhmquFlUOuMSoXz5IRw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <div style="float:left">
+    <div style="border:1px solid black; width: 250px;border-radius:  5px;    padding: 20px;">
+      <div style="text-align:center;padding-bottom:5px">
+        <b>Project Data</b>
+      </div>
+      <hr>
+      <table style="border: none;">
+        <tbody>
+          <tr>
+            <td>Project ID</td>
+            <td>:</td>
+            <td>
+              <input id="projectId" type="text" value="" style="width: 125px" />
+            </td>
+          </tr>
+          <tr>
+            <td>Project Name</td>
+            <td>:</td>
+            <td>
+              <input id="projectName" type="text" value="" style="width: 125px" />
+            </td>
+          </tr>
+          <tr>
+            <td>Budget</td>
+            <td>:</td>
+            <td>
+              <input id="budget" type="text" value="" style="width: 125px" />
+            </td>
+          </tr>
+          <tr>
+            <td>End Date</td>
+            <td>:</td>
+            <td>
+              <input id="endDate" type="text" value="" style="width: 125px" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="text-align:center;padding-top:10px;width: 250px;">
+      <input type="button" id="saveProjectPDF" value="Save Project Data PDF" />
+    </div>
+    <div style="text-align:center;padding-top:10px;width: 250px;">
+      <input type="button" id="editProjectPDF" value="Edit Project Data PDF" />
+    </div>
+  </div>
+  <div style="float:left;margin-left: 50px">
+    <div style="border:1px solid black; width: 250px;border-radius:  5px;    padding: 20px;">
+      <div style="text-align:center;padding-bottom:5px">
+        <b>Student Data</b>
+      </div>
+      <hr>
+      <table style="border: none;">
+        <tbody>
+          <tr>
+            <td>Student ID</td>
+            <td>:</td>
+            <td>
+              <input id="studentId" type="text" value="" style="width: 125px" />
+            </td>
+          </tr>
+          <tr>
+            <td>Student Name</td>
+            <td>:</td>
+            <td>
+              <input id="studentName" type="text" value="" style="width: 125px" />
+            </td>
+          </tr>
+          <tr>
+            <td>Class</td>
+            <td>:</td>
+            <td>
+              <input id="class" type="text" value="" style="width: 125px" />
+            </td>
+          </tr>
+          <tr>
+            <td>Marks</td>
+            <td>:</td>
+            <td>
+              <input id="marks" type="text" value="" style="width: 125px" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="text-align:center;padding-top:10px;width: 250px;">
+      <input type="button" id="saveStudentPDF" value="Save Student Data PDF" />
+    </div>
+    <div style="text-align:center;padding-top:10px;width: 250px;">
+      <input type="button" id="editStudentPDF" value="Edit Student Data PDF" />
+    </div>
+  </div>
+  <script>
+    $("#endDate").datepicker();
+    $("#projectId").prop("readonly", true);
+
+    function clearProjectData() {
+      $("#projectName").val("");
+      $("#budget").val("");
+      $("#endDate").val("");
+      $("#projectId").val("");
+      $("#endDate").prop("disable", false);
+      $("#endDate").datepicker('enable');
+      $("#budget").prop("readonly", false);
+    }
+    $("#saveProjectPDF").click(function() {
+      if ($("#projectName").val().trim() == "") {
+        alert("Please enter the project name");
+        return;
+      }
+      if ($("#budget").val().trim() == "") {
+        alert("Please enter the budget");
+        return;
+      }
+      if ($("#endDate").val().trim() == "") {
+        alert("Please enter the end date");
+        return;
+      }
+      var data = {
+        projectName: $("#projectName").val(),
+        budjet: $("#budget").val(),
+        endDate: $("#endDate").val()
+      }
+      if ($("#projectId").val() != "") {
+        data.projectId = $("#projectId").val();
+      }
+      fetch("http://localhost:8080/api/project/", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      }).then(res => {
+        alert("saved project data");
+        clearProjectData();
+      });
+    });
+    $("#editProjectPDF").click(function() {
+      fetch('http://localhost:8082/api/edit/project/').then((response) => response.json()).then((data) => {
+        if (data.projectName != undefined) {
+          $("#projectName").val(data.projectName);
+          $("#budget").val(data.budjet);
+          $("#endDate").val(data.endDate);
+          $("#projectId").val(data.projectId);
+          $("#projectId").prop("readonly", true);
+          $("#budget").prop("readonly", true);
+          $("#endDate").prop("disable", true);
+          $("#endDate").datepicker('disable');
+        } else {
+          alert("No Project data to edit");
+        }
+      });
+    });
+    $("#studentId").prop("readonly", true);
+
+    function clearStudentData() {
+      $("#studentName").val("");
+      $("#class").val("");
+      $("#marks").val("");
+      $("#studentId").val("");
+      $("#class").prop("readonly", false);
+      $("#marks").prop("readonly", false);
+    }
+    $("#saveStudentPDF").click(function() {
+      if ($("#studentName").val().trim() == "") {
+        alert("Please enter the student name");
+        return;
+      }
+      if ($("#class").val().trim() == "") {
+        alert("Please enter the class");
+        return;
+      }
+      if ($("#marks").val().trim() == "") {
+        alert("Please enter the marks");
+        return;
+      }
+      var data = {
+        studentName: $("#studentName").val(),
+        class: $("#class").val(),
+        marks: $("#marks").val()
+      }
+      if ($("#studentId").val() != "") {
+        data.studentId = $("#studentId").val();
+      }
+      fetch("http://localhost:8081/api/student/", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      }).then(res => {
+        alert("saved Student data");
+        clearStudentData();
+      });
+    });
+    $("#editStudentPDF").click(function() {
+      fetch('http://localhost:8082/api/edit/student/').then((response) => response.json()).then((data) => {
+        if (data.studentName != undefined) {
+          $("#studentName").val(data.studentName);
+          $("#class").val(data.class);
+          $("#marks").val(data.marks);
+          $("#studentId").val(data.studentId);
+          $("#studentId").prop("readonly", true);
+          $("#class").prop("readonly", true);
+          $("#marks").prop("readonly", true);
+        } else {
+          alert("No Student data to edit");
+        }
+      });
+    });
+  </script>
+</html>
